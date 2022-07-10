@@ -30,22 +30,17 @@ class InsertUsersView(CreateAPIView):
         )
 
 class UserListView(ListCreateAPIView):
-    """This class is responsible for showing the list of all users."""
+    """This class is responsible for showing the list of all users with 
+        paginated response.
+    """
 
     permission_classes = [AllowAny]
     serializer_class = UserSerializer
     pagination_class = CustomPagination
-    queryset = User.objects.all()
 
     def get_queryset(self):
-        return self.paginate_queryset(self.queryset)
-    
-
-    def get(self, request, *args, **kwargs):
-        serializer = self.serializer_class(self.get_queryset(),
-                                           many=True,
-                                           )
-        return self.get_paginated_response(data=serializer.data)
+        queryset = User.objects.all()
+        return queryset
 
 
     def post(self, request, *args, **kwargs):
@@ -60,6 +55,10 @@ class UserListView(ListCreateAPIView):
 
 
 class UserDetailView(RetrieveAPIView):
+    """
+        This class will the user's detail and also allows to update an user's
+        detail.
+    """
     serializer_class = UserSerializer
     queryset = User.objects.all()
 
