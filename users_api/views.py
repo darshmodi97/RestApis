@@ -5,6 +5,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.generics import CreateAPIView, RetrieveAPIView
 from users_api.models import User
 from users_api.serializers import UserSerializer
+from users_api.pagination import CustomPagination
 # Create your views here.
 
 
@@ -33,21 +34,20 @@ class UserListView(ListCreateAPIView):
 
     permission_classes = [AllowAny]
     serializer_class = UserSerializer
+    pagination_class = CustomPagination
+    queryset = User.objects.all()
 
     def get_queryset(self):
-        queryset = User.objects.all()
-        return queryset
+        return self.paginate_queryset(self.queryset)
+    
 
     def get(self, request, *args, **kwargs):
-
         serializer = self.serializer_class(self.get_queryset(),
-                                           many=True,                                           
+                                           many=True,
                                            )
-        return Response(
-            status=status.HTTP_200_OK,
-            data=serializer.data
-        )
-    
+        return self.get_paginated_response(data=serializer.data)
+
+
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
