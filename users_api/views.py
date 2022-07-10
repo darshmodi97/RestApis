@@ -2,7 +2,9 @@ from rest_framework.generics import ListCreateAPIView
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
-from rest_framework.generics import CreateAPIView, RetrieveAPIView
+from rest_framework.generics import (CreateAPIView, DestroyAPIView,
+                                    RetrieveUpdateDestroyAPIView
+                                    )
 from users_api.models import User
 from users_api.serializers import UserSerializer
 from users_api.pagination import CustomPagination
@@ -54,7 +56,7 @@ class UserListView(ListCreateAPIView):
         )
 
 
-class UserDetailView(RetrieveAPIView):
+class UserDetailView(RetrieveUpdateDestroyAPIView):
     """
         This class will the user's detail and also allows to update an user's
         detail.
