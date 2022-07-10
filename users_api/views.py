@@ -1,12 +1,10 @@
-from rest_framework.generics import ListAPIView
+from rest_framework.generics import ListCreateAPIView
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
-from rest_framework.viewsets import ModelViewSet
 from rest_framework.generics import CreateAPIView, RetrieveAPIView
 from users_api.models import User
 from users_api.serializers import UserSerializer
-import requests
 # Create your views here.
 
 
@@ -30,7 +28,7 @@ class InsertUsersView(CreateAPIView):
                 headers=headers
         )
 
-class UserListView(ListAPIView):
+class UserListView(ListCreateAPIView):
     """This class is responsible for showing the list of all users."""
 
     permission_classes = [AllowAny]
@@ -48,6 +46,16 @@ class UserListView(ListAPIView):
         return Response(
             status=status.HTTP_200_OK,
             data=serializer.data
+        )
+    
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer=serializer)
+
+        return Response(
+            status=status.HTTP_201_CREATED,
+            data={"message":"User created successfully."}
         )
 
 
