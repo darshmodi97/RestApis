@@ -1,16 +1,15 @@
-from rest_framework.generics import ListAPIView
+from rest_framework.generics import ListCreateAPIView
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
-from rest_framework.viewsets import ModelViewSet
-from rest_framework.generics import CreateAPIView
+from rest_framework.generics import CreateAPIView, RetrieveAPIView
 from users_api.models import User
 from users_api.serializers import UserSerializer
-import requests
+from users_api.pagination import CustomPagination
 # Create your views here.
 
 
-class InsertUsers(CreateAPIView):
+class InsertUsersView(CreateAPIView):
     """
     This class is responsible for insert all user's data into the DB using postman.
     """
@@ -19,7 +18,7 @@ class InsertUsers(CreateAPIView):
 
     def create(self, request, *args, **kwargs):
         data = request.data
-        many = isinstance(data, list)        
+        many = isinstance(data, list)
         serializer = self.get_serializer(data=data, many=many)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
@@ -30,19 +29,42 @@ class InsertUsers(CreateAPIView):
                 headers=headers
         )
 
-class UserList(ListAPIView):
-    """This class is responsible for showing the list of all users."""
+class UserListView(ListCreateAPIView):
+    """This class is responsible for showing the list of all users with 
+        paginated response.
+    """
 
     permission_classes = [AllowAny]
     serializer_class = UserSerializer
+    pagination_class = CustomPagination
 
     def get_queryset(self):
         queryset = User.objects.all()
         return queryset
-    
-    def get(self, request, *args, **kwargs):
 
-        serializer = self.serializer_class(self.get_queryset() , many=True)        
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer=serializer)
+
+        return Response(
+            status=status.HTTP_201_CREATED,
+            data={"message":"User created successfully."}
+        )
+
+
+class UserDetailView(RetrieveAPIView):
+    """
+        This class will the user's detail and also allows to update an user's
+        detail.
+    """
+    serializer_class = UserSerializer
+    queryset = User.objects.all()
+
+    def get(self, request, *args, **kwargs):
+        obj = self.get_object()
+        serializer = self.serializer_class(instance=obj, context={'request': request})
         return Response(
             status=status.HTTP_200_OK,
             data=serializer.data

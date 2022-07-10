@@ -69,8 +69,10 @@ REST_FRAMEWORK = {
         'anon': '50/day',
         'user': '100/day'
     },
+    
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 5,
+    
     # 'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',  # for swagger's view
 }
 
